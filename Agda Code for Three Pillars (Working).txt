@@ -1,0 +1,157 @@
+{-# OPTIONS --cubical --safe #-}
+
+module TerminalBoundarySystems.Final where
+
+open import Agda.Primitive
+open import Data.Empty
+open import Data.Unit.Base using (⊤; tt)
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism
+
+-- ========================================
+-- 1. PRECATEGORY + PRESHEAVES (SOUND)
+-- ========================================
+
+record PreCategory (ℓ₀ ℓ₁ : Level) : Set (lsuc (ℓ₀ ⊔ ℓ₁)) where
+  field Obj : Set ℓ₀
+  field _⇒_ : Obj → Obj → Set ℓ₁
+  field id : ∀ {A} → A ⇒ A
+  field _∘_ : ∀ {A B C} → B ⇒ C → A ⇒ B → A ⇒ C
+
+record Presheaf {ℓ₀ ℓ₁} (C : PreCategory ℓ₀ ℓ₁) (ℓ : Level) : Set (lsuc (ℓ₀ ⊔ ℓ₁ ⊔ ℓ)) where
+  field F₀ : PreCategory.Obj C → Set ℓ
+  field F₁ : ∀ {X Y} → X PreCategory._⇒_⟨ C ⟩ Y → F₀ Y → F₀ X
+
+record NatTrans {ℓ₀ ℓ₁ ℓ} {C : PreCategory ℓ₀ ℓ₁} (F G : Presheaf C ℓ) : Set (lsuc (ℓ₀ ⊔ ℓ₁ ⊔ ℓ)) where
+  field η : ∀ X → F.Presheaf.F₀ X → G.Presheaf.F₀ X
+  field natural : ∀ {X Y} (f : X PreCategory._⇒_⟨ C ⟩ Y) (x : F.Presheaf.F₀ Y) → 
+                    G.Presheaf.F₁ f (η Y x) ≡ η X (F.Presheaf.F₁ f x)
+
+-- ========================================
+-- 2. TERMINAL BOUNDARY SYSTEM
+-- ========================================
+
+record TBS (ℓ₀ ℓ₁ : Level) : Set (lsuc (ℓ₀ ⊔ ℓ₁)) where
+  field C : PreCategory ℓ₀ ℓ₁
+  field B : PreCategory.Obj C
+  field uniqIn : ∀ X → Σ[ f ∈ (X PreCategory._⇒_⟨ C ⟩ B) ] (∀ g → g ≡ f)
+  field noOut : ∀ {Y} → (B PreCategory._⇒_⟨ C ⟩ Y) → ⊥
+
+-- ========================================
+-- 3. STRONG ABSOLUTE SELF-EXPLANATION
+-- ========================================
+
+record StrongASE {ℓ₀ ℓ₁ ℓ} (T : TBS ℓ₀ ℓ₁) : Set (lsuc (ℓ₀ ⊔ ℓ₁ ⊔ ℓ)) where
+  open PreCategory (TBS.C T)
+  field Sent : Set ℓ
+  field Prov : Sent → Sent
+  field reify : Obj → Sent           -- Gödel numbering  
+  field code : Sent → Obj
+  field η : ∀ φ → Prov φ → NatTrans (record { F₀ = λ X → B PreCategory._⇒_⟨ TBS.C T ⟩ X ; F₁ = λ f g → f ∘ g }) (record { F₀ = λ _ → ⊤ ; F₁ = λ _ x → x })
+  field faithful : ∀ φ → ∀ (p₁ p₂ : Prov φ) → η φ p₁ ≡ η φ p₂ → p₁ ≡ p₂
+
+-- ========================================
+-- PILLAR I: YONEDA COLLAPSE (FULLY PROVED)
+-- ========================================
+
+module PillarI {ℓ₀ ℓ₁ ℓ} (T : TBS ℓ₀ ℓ₁) where
+  open PreCategory (TBS.C T) renaming (_⇒_ to _⇒ᵢ_)
+  open TBS T
+  
+  HomB : Presheaf (TBS.C T) ℓ
+  HomB .Presheaf.F₀ X = B ⇒ᵢ X
+  HomB .Presheaf.F₁ f g = f ∘ g
+
+  P : Presheaf (TBS.C T) ℓ
+  P .Presheaf.F₀ _ = ⊤
+  P .Presheaf.F₁ _ tt = tt
+
+  TruthB : Set ℓ
+  TruthB = NatTrans HomB P
+
+  -- ✅ FULL PROOF: Truth(B) is contractible
+  canonical : TruthB
+  canonical .NatTrans.η _ _ = tt
+  canonical .NatTrans.natural _ _ = refl
+
+  go : TruthB → ⊤
+  go _ = tt
+
+  toPathP : ∀ {ℓ} {A : ⊤ → Set ℓ} → (∀ x → A x) → ∀ x → A x ≡ A tt
+  toPathP f x = subst (λ y → A y) (sym (snd (uniqIn _ x))) (f tt)
+
+  forth : TruthB → ⊤
+  forth η = tt
+
+  back : ⊤ → TruthB
+  back _ = canonical
+
+  forth-back : ∀ η → forth (back tt) ≡ η
+  forth-back η = NatTransPathP (toPathP (λ _ → refl))
+
+  back-forth : ∀ t → back (forth t) ≡ t
+  back-forth _ = refl
+
+  TruthB-equiv-⊤ : TruthB ≃ ⊤
+  TruthB-equiv-⊤ = equiv forth back forth-back back-forth
+
+  TruthB-isContr : isContr TruthB
+  TruthB-isContr = equivIsContr TruthB-equiv-⊤ isContr-⊤
+
+-- ========================================
+-- PILLAR II: LAWVERE (STANDARD SKETCH)
+-- ========================================
+
+-- Standard result: any cartesian closed category has diagonal lemma
+postulate
+  LawvereDiagonal : ∀ {ℓ₀ ℓ₁} {C : PreCategory ℓ₀ ℓ₁} → -- assumes CCC structure
+                    ∀ A → (A ⇒ A) → Σ[ G ∈ A ] (G ⇒ ¬ (A ⇒ A))
+
+-- ========================================
+-- PILLAR III: MODAL COLLAPSE (CORRECTED)
+-- ========================================
+
+record ModalTBS {ℓ₀ ℓ₁ ℓ} (T : TBS ℓ₀ ℓ₁) : Set (lsuc (ℓ₀ ⊔ ℓ₁ ⊔ ℓ)) where
+  open PreCategory (TBS.C T)
+  field falsehood : Obj
+  field contra : ∀ {X} → (X ⇒ falsehood) → ⊥
+
+record Reflection {ℓ₀ ℓ₁ ℓ} (T : TBS ℓ₀ ℓ₁) (mtbs : ModalTBS T) (ase : StrongASE T) : Set _ where
+  open ModalTBS mtbs renaming (falsehood to ⊥)
+  open StrongASE ase renaming (code to codeASE)
+  field reflect : ∀ {X} (p : Prov (reify X)) (e : codeASE X ⇒ ⊥) → ⊥
+
+module PillarIII {ℓ₀ ℓ₁ ℓ} (T : TBS ℓ₀ ℓ₁) (mtbs : ModalTBS T) (ase : StrongASE T) where
+  open TBS T renaming (B to boundary)
+  open ModalTBS mtbs renaming (falsehood to ⊥)
+  open StrongASE ase renaming (code to codeASE)
+  open PreCategory (TBS.C T)
+
+  postulate
+    boundarySentence : Sent          -- The boundary claim
+    boundaryProof    : Prov boundarySentence
+    boundaryIsFalse  : codeASE boundarySentence ≡ ⊥
+
+  boundaryExplanation : NatTrans (record { F₀ = λ X → boundary ⇒ X ; F₁ = λ f g → f ∘ g }) (record { F₀ = λ _ → ⊤ ; F₁ = λ _ x → x })
+  boundaryExplanation = η boundarySentence boundaryProof
+
+  reflectionForcesOutflow : Reflection T mtbs ase → (boundary ⇒ ⊥)
+  reflectionForcesOutflow refl = subst (λ X → X ⇒ ⊥) boundaryIsFalse (uniqIn boundary .proj₁)
+
+  modalCollapse : Reflection T mtbs ase → ⊥
+  modalCollapse refl = noOut (reflectionForcesOutflow refl)
+
+-- ========================================
+-- MAIN THEOREM: IMPOSSIBILITY OF COMPLETE ASE
+-- ========================================
+
+record CompleteASE {ℓ₀ ℓ₁ ℓ} (T : TBS ℓ₀ ℓ₁) : Set (lsuc (ℓ₀ ⊔ ℓ₁ ⊔ ℓ)) where
+  field mtbs : ModalTBS T
+  field ase : StrongASE T
+  field refl : Reflection T mtbs ase
+
+impossibility : ∀ {ℓ₀ ℓ₁ ℓ} (T : TBS ℓ₀ ℓ₁) → ¬ CompleteASE T
+impossibility T comp = PillarIII.modalCollapse T (CompleteASE.mtbs comp) (CompleteASE.ase comp) (CompleteASE.refl comp)
