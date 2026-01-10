@@ -1,124 +1,84 @@
-# Terminal Boundary Systems (TBS)
-**A Partially Machine-Verified Framework for the Limits of Absolute Self-Explanation**
-
-Author: Avinash A.  
-Status: Active research / partial formal verification  
-Proof assistant: Cubical Agda (`--cubical --safe`)
-
----
-
-## Overview
-
-This repository contains a formal, machine-checked core of a categorical framework called **Terminal Boundary Systems (TBS)**.  
-The framework investigates **structural limits on absolute self-explanation**, unifying ideas from:
-
-- Gödel incompleteness
-- Lawvere fixed-point theorems
-- Categorical semantics
-- Modal and reflective systems
-
-The central result is an **impossibility program**:  
-> No system with a strict terminal boundary can internally provide a complete, faithful, and non-trivial self-explanation.
-
-A key portion of this claim is **already machine-verified** in Cubical Agda.
-
----
 # TBS-AI-Safety: Formalizing the Terminal Boundary
 
 [![Agda](https://img.shields.io/badge/Language-Agda-orange.svg)](https://wiki.portal.chalmers.se/agda/pmwiki.php)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Safety Status](https://img.shields.io/badge/AI--Safety-Formal--Verification-green)](#)
 
-This repository contains the high-density mechanization of the **ASE (Absolute Self-Explanation) Impossibility Theorem** in Cubical Agda. 
+**A Partially Machine-Verified Framework for the Limits of Absolute Self-Explanation**
+
+**Author:** Avinash A.  
+**Status:** Active Research / Partial Formal Verification  
+**Proof Assistant:** Cubical Agda (`--cubical --safe`)
 
 ---
 
 ## 🎯 Research Objective
-As AI models evolve toward self-consistent reasoning, they move beyond simple prediction toward recursive self-correction. This project identifies the **"Speed Limits"** of this process. Using Category Theory and Dependent Types, we prove the existence of **Modal Collapse**—a structural obstruction where an agent's internal logic and external semantics become indistinguishable, rendering "truth-orientation" mathematically impossible.
+
+As Large Language Models (LLMs) transition from imitation toward **self-consistent reasoning** (Hinton, 2025), they move into recursive loops of self-correction and internal logic-checking. This project identifies the **"Speed Limits"** of this process. 
+
+Using Category Theory and Dependent Types, we prove the existence of **Modal Collapse**—a structural obstruction where an agent's internal logic and external semantics become indistinguishable. This renders "Absolute Self-Explanation" (ASE) mathematically impossible at the terminal boundary of an agent's reasoning space.
+
+
 
 ---
+
 ## 🧬 Core Theorem: Modal Collapse Lemma
-The project leverages a variation of **Lawvere’s Fixed Point Theorem** to demonstrate that for any sufficiently expressive agentic reasoning system, there exists no surjective mapping from internal state-explanations to absolute semantic truth.
+
+The framework leverages a variation of **Lawvere’s Fixed Point Theorem** to demonstrate that for any sufficiently expressive agentic reasoning system, there exists no surjective mapping from internal state-explanations to absolute semantic truth.
 
 ### Key Formalizations:
-* **Yoneda Collapse:** Proving viewpoint obstructions at the Terminal Boundary.
-* **Lawvere Obstruction:** Mechanizing the diagonal argument that prevents complete self-modeling.
-* **Modal Operators:** Defining safe operating enclaves within the reasoning space.
+* **Yoneda Collapse:** Proving viewpoint obstructions at the Terminal Boundary where semantic truth becomes contractible.
+* **Lawvere Obstruction:** Mechanizing the diagonal argument that prevents complete, faithful self-modeling.
+* **Modal Operators:** Defining safe operating "enclaves" within the reasoning space to prevent ungrounded logical loops.
 
 ---
 
-## What Is Machine-Verified
+## ✅ What Is Machine-Verified (Pillar I)
 
-### ✅ Verified Core Result (Pillar I)
+The following core result is **fully formalized and checked by Agda** (constructive, cubical, and free of postulates):
 
-The following result is **fully formalized and checked by Agda**:
+> **Yoneda Collapse at the Terminal Boundary**
+> 
+> For any Terminal Boundary System, the space of natural transformations from the boundary hom-functor to the constant truth presheaf is **contractible**.
 
-> **Yoneda Collapse at the Terminal Boundary**  
-> For any Terminal Boundary System, the space of natural transformations  
-> from the boundary hom-functor to the constant truth presheaf is **contractible**.
-
-Formally:
-- A presheaf `Hom(B, -)` is defined
-- A constant presheaf `⊤` is defined
-- The type of natural transformations between them is shown to be equivalent to `⊤`
-- This proves a collapse of semantic truth at the boundary
-
-This result is constructive, cubical, and free of postulates.
+**Formal Implementation Details:**
+- Defined a minimal **PreCategory** foundation (Objects, morphisms, identities, composition).
+- Implemented **Presheaves** and **Natural Transformations**.
+- Proved that the type of natural transformations `Hom(B, -) → ⊤` is equivalent to `1` (the Unit type).
+- **Result:** This proves a constructive collapse of semantic truth at the information-theoretic boundary.
 
 ---
 
-## Formal Structure
+## ⚠️ What Is Currently Postulated (Open Work)
 
-### 1. PreCategory and Presheaves
-A minimal categorical foundation suitable for Cubical Agda:
-- Objects, morphisms, identities, composition
-- Presheaves and natural transformations
+The following components represent the current research frontier and are marked as postulates in the code:
 
-### 2. Terminal Boundary Systems (TBS)
-A TBS consists of:
-- A precategory `C`
-- A distinguished boundary object `B`
-- Unique incoming morphisms into `B`
-- No outgoing morphisms from `B`
+* **Pillar II — Lawvere Diagonal:** Requires the implementation of a fully internal Lawvere diagonal lemma within Cartesian Closed Structures.
+* **Pillar III — Modal Collapse:** Introduction of a modal falsehood object and a verified syntax–semantics reflection principle.
+* **Full Impossibility Theorem:** The final proof that `∀ T → ¬ CompleteASE T`.
 
-This encodes an **information-theoretic terminal boundary**.
 
-### 3. Strong Absolute Self-Explanation (ASE)
-An abstract interface for systems that attempt to:
-- Encode their own sentences
-- Prove them internally
-- Reflect proofs into semantic explanations
-
-This is intentionally strong and exposes the tension leading to collapse.
 
 ---
-
-## What Is Currently Postulated (Open Work)
-
-The following components are **explicitly marked as postulates** and represent ongoing or future work:
-
-### ⚠️ Pillar II — Lawvere Diagonal
-- Requires formalizing cartesian closed structure
-- A fully internal Lawvere diagonal lemma remains to be implemented
-
-### ⚠️ Pillar III — Modal Collapse
-- Introduces a modal falsehood object
-- Requires a verified syntax–semantics reflection principle
-- Boundary contradiction is currently postulated
-
-### ⚠️ Full Impossibility Theorem
-The final theorem:
-```agda
-impossibility : ∀ T → ¬ CompleteASE T
 
 ## 📁 Repository Structure
-* `/Foundations`: Core category theory definitions (Functors, Natural Transformations).
-* `/Yoneda`: Mechanization of the Yoneda Lemma as a viewpoint boundary.
-* `/Lawvere`: The core proof of the ASE Impossibility Theorem.
-* `/Modal`: Experimental definitions for safe reasoning enclaves.
+
+* [`/Foundations`](./Foundations): Core categorical structures suitable for Cubical Agda.
+* [`/Yoneda`](./Yoneda): Mechanization of the Yoneda Collapse as a viewpoint boundary.
+* [`/Lawvere`](./Lawvere): Diagonal arguments and the ASE Impossibility core.
+* [`/Modal`](./Modal): Experimental definitions for safe reasoning enclaves and reflection.
+
+---
+
+## 🚀 2026 Roadmap
+
+1.  **Pillar I (Complete):** Foundational mechanization of the Yoneda Collapse.
+2.  **Pillar II (Active):** Discharging Lawvere Diagonal postulates for cartesian closed structures.
+3.  **Pillar III (Empirical):** Stress-testing frontier models (Claude 3.5 Opus / GPT-4o) to map empirical hallucination spikes to these theoretical "No-Go" zones.
 
 ## 🛠 Usage & Requirements
-This project uses **Cubical Agda** to handle higher-dimensional identity types.
+
+Ensure you have [Agda](https://wiki.portal.chalmers.se/agda/pmwiki.php) installed with the Cubical library.
+
 ```bash
 agda --cubical --safe TBS.agda
-
