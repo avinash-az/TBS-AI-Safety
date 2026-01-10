@@ -23,6 +23,29 @@ The central result is an **impossibility program**:
 A key portion of this claim is **already machine-verified** in Cubical Agda.
 
 ---
+# TBS-AI-Safety: Formalizing the Terminal Boundary
+
+[![Agda](https://img.shields.io/badge/Language-Agda-orange.svg)](https://wiki.portal.chalmers.se/agda/pmwiki.php)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Safety Status](https://img.shields.io/badge/AI--Safety-Formal--Verification-green)](#)
+
+This repository contains the high-density mechanization of the **ASE (Absolute Self-Explanation) Impossibility Theorem** in Cubical Agda. 
+
+---
+
+## 🎯 Research Objective
+As AI models evolve toward self-consistent reasoning, they move beyond simple prediction toward recursive self-correction. This project identifies the **"Speed Limits"** of this process. Using Category Theory and Dependent Types, we prove the existence of **Modal Collapse**—a structural obstruction where an agent's internal logic and external semantics become indistinguishable, rendering "truth-orientation" mathematically impossible.
+
+---
+## 🧬 Core Theorem: Modal Collapse Lemma
+The project leverages a variation of **Lawvere’s Fixed Point Theorem** to demonstrate that for any sufficiently expressive agentic reasoning system, there exists no surjective mapping from internal state-explanations to absolute semantic truth.
+
+### Key Formalizations:
+* **Yoneda Collapse:** Proving viewpoint obstructions at the Terminal Boundary.
+* **Lawvere Obstruction:** Mechanizing the diagonal argument that prevents complete self-modeling.
+* **Modal Operators:** Defining safe operating enclaves within the reasoning space.
+
+---
 
 ## What Is Machine-Verified
 
@@ -87,3 +110,15 @@ The following components are **explicitly marked as postulates** and represent o
 The final theorem:
 ```agda
 impossibility : ∀ T → ¬ CompleteASE T
+
+## 📁 Repository Structure
+* `/Foundations`: Core category theory definitions (Functors, Natural Transformations).
+* `/Yoneda`: Mechanization of the Yoneda Lemma as a viewpoint boundary.
+* `/Lawvere`: The core proof of the ASE Impossibility Theorem.
+* `/Modal`: Experimental definitions for safe reasoning enclaves.
+
+## 🛠 Usage & Requirements
+This project uses **Cubical Agda** to handle higher-dimensional identity types.
+```bash
+agda --cubical --safe TBS.agda
+
